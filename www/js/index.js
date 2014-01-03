@@ -23,84 +23,15 @@ figureapp.AppContext = { };
 
     var logger = figureapp.LoggingContext.logger;
     var MockContext = figureapp.MockContext;
+    var fileManager = figureapp.FileManager;
+    var imageManager = figureapp.ImageManager;
 
-    var IMAGES_DIR = "images/figures/nedah040/";
-
-    /**
-     // http://docs.phonegap.com/en/3.3.0/cordova_file_file.md.html#FileSystem
-     * @constructor
-     */
-    function FileSystemHelper() {
-        var self = this;
-        var fileSystem;
-
-        this.getAbsoluteFilePath = function(file) {
-            var path = window.location.pathname;
-            path = path.substr( 0, path.length - 10 );
-            return 'file://' + path + "/" + file;
-        };
-
-        /**
-         Properties
-
-         isFile: Always true. (boolean)
-         isDirectory: Always false. (boolean)
-         name: The name of the FileEntry, excluding the path leading to it. (DOMString)
-         fullPath: The full absolute path from the root to the FileEntry. (DOMString)
-
-         NOTE: The following attribute is defined by the W3C specification, but is not supported:
-         filesystem: The file system on which the FileEntry resides. (FileSystem)
-
-         Methods
-
-         getMetadata: Look up metadata about a file.
-         setMetadata: Set metadata on a file.
-         moveTo: Move a file to a different location on the file system.
-         copyTo: Copy a file to a different location on the file system.
-         toURL: Return a URL that can be used to locate a file.
-         remove: Delete a file.
-         getParent: Look up the parent directory.
-         createWriter: Creates a FileWriter object that can be used to write to a file.
-         file: Creates a File object containing file properties.
-
-         * @param path
-         * @param successCallback
-         * @param errorCallback
-         */
-        this.openFileFromRelativePath = function(path, successCallback, errorCallback) {
-            var absolutePath = this.getAbsoluteFilePath(path);
-            if (!errorCallback) {
-                errorCallback = function(error) {
-                    logger.error(error);
-                }
-            }
-            this.openFileFromAbsolutePath(absolutePath, successCallback, errorCallback);
-        };
-
-        this.openFileFromAbsolutePath = function(path, successCallback, errorCallback) {
-            window.resolveLocalFileSystemURI(path, successCallback, errorCallback);
-        };
-
-        this.requestFileSystemStorage = function() {
-            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, this.onFilesystemSuccess, this.onFileSystemFail);
-        };
-
-        this.onFilesystemSuccess = function(_fileSystem) {
-            logger.log("success opening file system: " + _fileSystem);
-            fileSystem = _fileSystem;
-        };
-
-        this.onFileSystemFail = function(error) {
-            logger.error("error opening file system: " + error);
-        }
-    }
+    var IMAGES_DIR = "images/figures/nedah040";
 
     function App() {
         var logger = null;
-        var fileSystemHelper = null;
 
         this.initialize = function() {
-            fileSystemHelper = new FileSystemHelper();
             this.bindEvents();
         };
 
@@ -130,8 +61,7 @@ figureapp.AppContext = { };
 
         this.onDeviceReady = function() {
             // injection
-            fileSystemHelper = this.getFileSystemHelper();
-            imageApi = new ImageApi(fileSystemHelper);
+            imageApi = new ImageApi(imageManager);
             rootView = new RootView();
             imageGallery = new ImageGallery();
 
@@ -153,46 +83,20 @@ figureapp.AppContext = { };
     }
 
     /**
-     *
-     * @param fileSystemHelper
      * @constructor
      */
-    function ImageApi(fileSystemHelper) {
+    function ImageApi(imageManager) {
         var self = this;
 
         this.loadFigureImages = function(successCallback) {
-            fileSystemHelper.openFileFromRelativePath(IMAGES_DIR, function(imageDir) {
-                alert(imageDir);
-                self.handleImageDir(imageDir, successCallback);
-            }, function(error) {
-                alert(error);
-            });
-        };
-
-        this.handleImageDir = function(imagesDirectory, successCallback) {
-            var images = [];
-            if (!imagesDirectory.isDirectory()) {
-                logger.error("images directory " + imagesDirectory.fullPath + " is not a directory.");
-            } else {
-                var directoryReader = imagesDirectory.createReader();
-                directoryReader.readEntries(
-                    function(entry) {
-                        if (entry.isFile()) {
-                            images.push(entry);
-                        }
-                    },
-                    function(error) {
-                        logger.log("could not read directory: " + imagesDirectory.fullPath + ": " + error);
-                    }
-                );
-            }
-
-            successCallback(images);
+            var imagePaths = imageManager.getImageFilePaths();
+            successCallback(imagePaths);
         };
 
         this.loadFigureImage = function(successCallback) {
             var path = "images/figures/nedah040/nedah040_19-scaled.png";
-            fileSystemHelper.openFileFromRelativePath(path, successCallback);
+            // Note: this works.
+            // fileSystemHelper.openFileFromRelativePath(path, successCallback);
         };
     }
 
@@ -224,7 +128,7 @@ figureapp.AppContext = { };
         var self = $.extend(this, new View(container));
 
         this.addImage = function(image) {
-            var elem = img(image.fullPath);
+            var elem = img(image);
             container.append(elem);
         };
 
@@ -239,7 +143,6 @@ figureapp.AppContext = { };
     };
 
     if ( ! isMobileDevice()) {
-        alert("woops");
 
         // tests.
         if ( ! window.resolveLocalFileSystemURI) {
