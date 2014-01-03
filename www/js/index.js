@@ -17,20 +17,14 @@
  * under the License.
  */
 
-var AppContext = { };
+figureapp.AppContext = { };
 
 (function(AppContext) {
-    function Logger() {
-        this.log = function(msg) {
-            console.log(new Date() + ": " + msg);
-        };
 
-        this.error = function(msg) {
-            alert(msg);
-        }
-    }
+    var logger = figureapp.LoggingContext.logger;
+    var MockContext = figureapp.MockContext;
 
-    var logger = new Logger();
+    var IMAGES_DIR = "images/figures/nedah040/";
 
     /**
      // http://docs.phonegap.com/en/3.3.0/cordova_file_file.md.html#FileSystem
@@ -141,10 +135,19 @@ var AppContext = { };
             rootView = new RootView();
             imageGallery = new ImageGallery();
 
+            /*
             imageApi.loadFigureImage(function(image) {
+                rootView.setView(imageGallery);
+                imageGallery.addImage(image);
+            });
+            */
+
+            imageApi.loadFigureImages(function(images) {
                 rootView.clearLoadingPage();
                 rootView.setView(imageGallery);
-                imageGallery.imageWasLoaded(image);
+                $.each(images, function(i, image) {
+                    imageGallery.addImage(image);
+                });
             });
         };
     }
@@ -155,6 +158,35 @@ var AppContext = { };
      * @constructor
      */
     function ImageApi(fileSystemHelper) {
+        var self = this;
+
+        this.loadFigureImages = function(successCallback) {
+            fileSystemHelper.openFileFromRelativePath(IMAGES_DIR, function(imageDir) {
+                logger.log(imageDir);
+                self.handleImageDir(imageDir, successCallback);
+            });
+        };
+
+        this.handleImageDir = function(imagesDirectory, successCallback) {
+            var images = [];
+            if (!imagesDirectory.isDirectory()) {
+                logger.error("images directory " + imagesDirectory.fullPath + " is not a directory.");
+            } else {
+                var directoryReader = imagesDirectory.createReader();
+                directoryReader.readEntries(
+                    function(entry) {
+                        if (entry.isFile()) {
+                            images.push(entry);
+                        }
+                    },
+                    function(error) {
+                        logger.log("could not read directory: " + imagesDirectory.fullPath + ": " + error);
+                    }
+                );
+            }
+
+            successCallback(images);
+        };
 
         this.loadFigureImage = function(successCallback) {
             var path = "images/figures/nedah040/nedah040_19-scaled.png";
@@ -171,7 +203,7 @@ var AppContext = { };
     }
 
     function RootView() {
-        var body = $('body');
+        var body = $('#main');
         var self = $.extend(this, new View(body));
 
         this.clearLoadingPage = function() {
@@ -189,7 +221,7 @@ var AppContext = { };
         var container = div('image-gallery-container');
         var self = $.extend(this, new View(container));
 
-        this.imageWasLoaded = function(image) {
+        this.addImage = function(image) {
             var elem = img(image.fullPath);
             container.append(elem);
         };
@@ -200,15 +232,16 @@ var AppContext = { };
     }
 
     AppContext.app = new FigureDrawingApp();
+    AppContext.initialize = function() {
+        AppContext.app.initialize();
+    };
 
     if ( ! isMobileDevice()) {
 
         // tests.
         if ( ! window.resolveLocalFileSystemURI) {
             window.resolveLocalFileSystemURI = function(path, successCallback, errorCallback) {
-                successCallback({
-                    fullPath: path
-                });
+                successCallback(MockContext.newMockFileEntry(path));
             };
         }
 
@@ -216,6 +249,6 @@ var AppContext = { };
             var evento = document.createEvent('Events');
             evento.initEvent('deviceready',true,false);
             document.dispatchEvent(evento);
-        }, 3000);
+        }, 1000);
     }
-})(AppContext);
+})(figureapp.AppContext);

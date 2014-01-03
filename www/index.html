@@ -28,23 +28,27 @@
         <title>Figure App</title>
     </head>
     <body>
-        <div class="app">
+
+        <div id="main" class="app" data-role="page">
             <h1>Figure App</h1>
-            <div id="deviceready" class="blink">
-                <p class="event listening">Connecting to Device</p>
-                <p class="event received">Device is Ready</p>
-            </div>
+
+            <div id="logger" class="logger"></div>
+
+            <script type="text/javascript" src="phonegap.js"></script>
+            <script type="text/javascript" src="js/lib/jquery-2.0.3.min.js"></script>
+            <script type="text/javascript" src="js/lib/jquery.mobile-1.4.0.min.js"></script>
+            <script type="text/javascript" src="js/MobileBrowserDetection.js"></script>
+            <script type="text/javascript" src="js/Package.js"></script>
+            <script type="text/javascript" src="js/ElementGlobals.js"></script>
+            <script type="text/javascript" src="js/Logging.js"></script>
+            <script type="text/javascript" src="js/Mocks.js"></script>
+            <script type="text/javascript" src="js/index.js"></script>
+
+            <script type="text/javascript">
+                figureapp.AppContext.initialize();
+            </script>
+
         </div>
 
-        <script type="text/javascript" src="phonegap.js"></script>
-        <script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
-        <script type="text/javascript" src="js/jquery.mobile-1.4.0.min.js"></script>
-        <script type="text/javascript" src="js/MobileBrowserDetection.js"></script>
-        <script type="text/javascript" src="js/ElementGlobals.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
-
-        <script type="text/javascript">
-            AppContext.app.initialize();
-        </script>
     </body>
 </html>
