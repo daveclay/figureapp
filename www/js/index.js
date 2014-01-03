@@ -162,8 +162,10 @@ figureapp.AppContext = { };
 
         this.loadFigureImages = function(successCallback) {
             fileSystemHelper.openFileFromRelativePath(IMAGES_DIR, function(imageDir) {
-                logger.log(imageDir);
+                alert(imageDir);
                 self.handleImageDir(imageDir, successCallback);
+            }, function(error) {
+                alert(error);
             });
         };
 
@@ -237,6 +239,7 @@ figureapp.AppContext = { };
     };
 
     if ( ! isMobileDevice()) {
+        alert("woops");
 
         // tests.
         if ( ! window.resolveLocalFileSystemURI) {
