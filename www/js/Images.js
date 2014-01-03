@@ -29,11 +29,7 @@ figureapp.ImageManager = (function() {
             "nedah040_21-scaled.png",
             "nedah040_22-scaled.png",
             "nedah040_23-scaled.png",
-            "nedah040_24-scaled.png",
-            "nedah040_25-scaled.png",
-            "nedah040_26-scaled.png",
-            "nedah040_27-scaled.png",
-            "nedah040_28-scaled.png"
+            "nedah040_24-scaled.png"
         ];
 
         var imageDirectory = "images/figures/nedah040/";

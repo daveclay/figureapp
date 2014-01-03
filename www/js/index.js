@@ -25,6 +25,7 @@ figureapp.AppContext = { };
     var MockContext = figureapp.MockContext;
     var fileManager = figureapp.FileManager;
     var imageManager = figureapp.ImageManager;
+    var imageRotator = figureapp.ImageRotator;
 
     var IMAGES_DIR = "images/figures/nedah040";
 
@@ -75,9 +76,7 @@ figureapp.AppContext = { };
             imageApi.loadFigureImages(function(images) {
                 rootView.clearLoadingPage();
                 rootView.setView(imageGallery);
-                $.each(images, function(i, image) {
-                    imageGallery.addImage(image);
-                });
+                imageGallery.showImages(images);
             });
         };
     }
@@ -127,12 +126,14 @@ figureapp.AppContext = { };
         var container = div('image-gallery-container');
         var self = $.extend(this, new View(container));
 
-        this.addImage = function(image) {
-            var elem = img(image);
-            container.append(elem);
+        this.showImages = function(images) {
+            imageRotator.showImages(images);
         };
 
         this.buildUI = function() {
+            var elem = imageRotator.getElement();
+            container.append(elem);
+            imageRotator.init();
             return container;
         };
     }
