@@ -45,6 +45,12 @@ figureapp.ImageRotator = (function() {
                     imgElem.on("mousedown", function(event) {
                         event.preventDefault();
                     });
+
+                    imgElem.css({
+                        '-moz-transform': 'scale(.6)',
+                        '-webkit-transform': 'scale(.6)'
+                    });
+
                     imageElems.push(imgElem);
                 }
             });
@@ -54,7 +60,7 @@ figureapp.ImageRotator = (function() {
                 container.append(elem);
             });
 
-            var width = 870;
+            var width = 500;
             maxPixels = width - (width * 0.1); // leave a little room on the sides.
             pixelsPerImage = Math.round(maxPixels / imageElems.length);
 
@@ -67,7 +73,7 @@ figureapp.ImageRotator = (function() {
         this.init = function() {
             container.hammer({
                 drag_lock_to_axis: true
-            }).on("release dragleft dragright swipeleft swiperight", function(event) {
+            }).on("dragleft dragright", function(event) {
                     event.preventDefault();
                     event.gesture.preventDefault();
                     self.handleHammer(event);
@@ -84,12 +90,7 @@ figureapp.ImageRotator = (function() {
         this.showImageAtIndex = function(idx) {
             var newImage = imageElems[idx];
             if (previousImage !== newImage) {
-                newImage.css({
-                    zIndex: 0
-                });
-                previousImage.css({
-                    zIndex: 1
-                });
+                newImage.show();
                 previousImage.hide();
                 previousImage = newImage;
             }
@@ -97,16 +98,16 @@ figureapp.ImageRotator = (function() {
         };
 
         this.previousImage = function() {
-            currentIndex--;
-            if (currentIndex < 0) {
-                currentIndex = imageElems.length + currentIndex;
-            }
+            currentIndex++;
             currentIndex = currentIndex % imageElems.length;
             this.showImageAtIndex(currentIndex);
         };
 
         this.nextImage = function() {
-            currentIndex++;
+            currentIndex--;
+            if (currentIndex < 0) {
+                currentIndex = imageElems.length + currentIndex;
+            }
             currentIndex = currentIndex % imageElems.length;
             this.showImageAtIndex(currentIndex);
         };
